@@ -38,7 +38,7 @@ echo "  → Running migrations..."
 npm run db:migrate
 
 echo "  → Seeding database with default accounts..."
-npm run db:seed
+npx prisma db seed
 
 echo ""
 echo "✅ Setup complete!"

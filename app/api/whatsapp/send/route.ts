@@ -221,13 +221,13 @@ export async function POST(request: NextRequest) {
     try {
         const { guestId } = await request.json();
 
-        // Get guest with wedding details and message template
+        // Get guest with wedding details and invitation template
         const guest = await prisma.guest.findUnique({
             where: { id: guestId },
             include: {
                 wedding: {
                     include: {
-                        messageTemplate: true,
+                        invitationTemplate: true,
                     },
                 },
             },
@@ -267,15 +267,10 @@ export async function POST(request: NextRequest) {
 
         // Get message from template or use default
         let message = "";
-        let imageUrl: string | null = null;
 
-        if (
-            guest.wedding.messageTemplate &&
-            guest.wedding.messageTemplate.isActive
-        ) {
+        if (guest.wedding.invitationTemplate) {
             // Use custom template
-            message = guest.wedding.messageTemplate.message;
-            imageUrl = guest.wedding.messageTemplate.imageUrl;
+            message = guest.wedding.invitationTemplate.template;
         } else {
             // Use default template
             message = `✨ *WEDDING INVITATION* ✨
@@ -329,24 +324,8 @@ The Wedding Family 💐`;
             .replace(/{INVITATION_URL}/g, invitationUrl)
             .trim();
 
-        // Send via WAHA (image first if exists, then text)
-        let result;
-        if (imageUrl) {
-            // Try to send image with caption (requires WAHA Plus)
-            try {
-                result = await sendWhatsAppImage(chatId, imageUrl, message);
-            } catch (error) {
-                // If image sending fails (e.g., free version), fall back to text only
-                console.warn(
-                    "Image sending failed, falling back to text-only:",
-                    error
-                );
-                result = await sendWhatsAppMessage(chatId, message);
-            }
-        } else {
-            // Send text only
-            result = await sendWhatsAppMessage(chatId, message);
-        }
+        // Send via WAHA (text only)
+        const result = await sendWhatsAppMessage(chatId, message);
 
         // Update guest record
         await prisma.guest.update({
