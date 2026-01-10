@@ -9,7 +9,7 @@ interface SidebarProps {
     user: {
         name?: string | null;
         email?: string | null;
-        role: UserRole;
+        role?: UserRole;
     };
 }
 
@@ -41,7 +41,7 @@ export function Sidebar({ user }: SidebarProps) {
                 </h1>
                 <p className="text-sm text-gray-600 mt-1">{user.name}</p>
                 <p className="text-xs text-gray-400">
-                    {user.role.replace("_", " ")}
+                    {user.role?.replace("_", " ") || "ADMIN"}
                 </p>
             </div>
 
