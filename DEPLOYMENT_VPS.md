@@ -4,10 +4,10 @@ Panduan lengkap untuk deploy Wedding Dashboard (Next.js) ke VPS menggunakan Ngin
 
 ## 📋 Prerequisites
 
-- VPS dengan Ubuntu 20.04+ / Debian 10+
-- Domain sudah di-pointing ke IP VPS (opsional, bisa pakai IP)
-- SSH access ke VPS
-- Database PostgreSQL (bisa Neon, Supabase, atau self-hosted)
+-   VPS dengan Ubuntu 20.04+ / Debian 10+
+-   Domain sudah di-pointing ke IP VPS (opsional, bisa pakai IP)
+-   SSH access ke VPS
+-   Database PostgreSQL (bisa Neon, Supabase, atau self-hosted)
 
 ---
 
@@ -88,6 +88,7 @@ GRANT ALL PRIVILEGES ON DATABASE wedding_dashboard TO wedding_user;
 ```
 
 **Connection string:**
+
 ```
 postgresql://wedding_user:your_strong_password@localhost:5432/wedding_dashboard
 ```
@@ -162,6 +163,7 @@ NEXT_PUBLIC_INVITATION_URL="https://yourwedding.com"
 ```
 
 **Generate AUTH_SECRET:**
+
 ```bash
 openssl rand -base64 32
 ```
@@ -213,6 +215,7 @@ pm2 logs wedding-dashboard
 ```
 
 **PM2 Commands:**
+
 ```bash
 pm2 restart wedding-dashboard   # Restart aplikasi
 pm2 stop wedding-dashboard      # Stop aplikasi
@@ -302,6 +305,7 @@ sudo certbot --nginx -d dashboard.yourwedding.com
 ```
 
 **Cek auto-renewal:**
+
 ```bash
 sudo certbot renew --dry-run
 ```
@@ -331,9 +335,9 @@ sudo ufw status
 
 ### Akses Dashboard:
 
-- **Dengan Domain + SSL:** `https://dashboard.yourwedding.com`
-- **Dengan Domain (HTTP):** `http://dashboard.yourwedding.com`
-- **Dengan IP:** `http://your-vps-ip`
+-   **Dengan Domain + SSL:** `https://dashboard.yourwedding.com`
+-   **Dengan Domain (HTTP):** `http://dashboard.yourwedding.com`
+-   **Dengan IP:** `http://your-vps-ip`
 
 ### Login Default:
 
@@ -441,6 +445,7 @@ nano /var/www/backup-db.sh
 ```
 
 **Isi script:**
+
 ```bash
 #!/bin/bash
 BACKUP_DIR="/var/backups/wedding-dashboard"

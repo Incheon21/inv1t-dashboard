@@ -64,10 +64,23 @@ async function main() {
 
     console.log("✅ Created wedding:", wedding.name);
 
-    // Create default invitation template
+    // Create/Update default invitation template
     const invitationTemplate = await prisma.invitationTemplate.upsert({
         where: { weddingId: wedding.id },
-        update: {},
+        update: {
+            template: `Halo {guestName}! 👋
+
+Kami dengan senang hati mengundang Anda untuk menghadiri pernikahan kami:
+
+💑 {weddingName}
+📅 {weddingDate}
+📍 {venue}
+
+Silakan konfirmasi kehadiran Anda melalui link berikut:
+🔗 {invitationUrl}
+
+Terima kasih! 🙏`,
+        },
         create: {
             weddingId: wedding.id,
             template: `Halo {guestName}! 👋
@@ -79,13 +92,13 @@ Kami dengan senang hati mengundang Anda untuk menghadiri pernikahan kami:
 📍 {venue}
 
 Silakan konfirmasi kehadiran Anda melalui link berikut:
-🔗 {invitationUrl}?name={guestNameEncoded}&maxGuests={maxGuests}&isOnlyPemberkatan={isOnlyPemberkatan}&code={invitationCode}
+🔗 {invitationUrl}
 
 Terima kasih! 🙏`,
         },
     });
 
-    console.log("✅ Created invitation template");
+    console.log("✅ Created/Updated invitation template");
 
     // Create sample guests with unique invitation codes
     const sampleGuests = [

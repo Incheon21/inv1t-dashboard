@@ -49,6 +49,7 @@ model Wedding {
   weddingDate     DateTime
   venue           String
   description     String?
+  encodeInvitationParams Boolean @default(false) // Encode invitation URL params (name, maxGuests, etc) for privacy
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   

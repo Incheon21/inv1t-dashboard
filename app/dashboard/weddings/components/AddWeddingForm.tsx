@@ -21,6 +21,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
         venue: "",
         description: "",
         adminId: admins[0]?.id || "",
+        encodeInvitationParams: false,
     });
 
     const generateSlug = (name: string) => {
@@ -59,6 +60,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                     venue: "",
                     description: "",
                     adminId: admins[0]?.id || "",
+                    encodeInvitationParams: false,
                 });
                 router.refresh();
             }
@@ -213,6 +215,39 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                         </option>
                     ))}
                 </select>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        checked={formData.encodeInvitationParams}
+                        onChange={(e) =>
+                            setFormData({
+                                ...formData,
+                                encodeInvitationParams: e.target.checked,
+                            })
+                        }
+                        className="mt-1 w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
+                    />
+                    <div>
+                        <span className="block font-medium text-gray-900">
+                            🔒 Encode Invitation URL Parameters
+                        </span>
+                        <span className="block text-sm text-gray-600 mt-1">
+                            Sembunyikan informasi sensitif (nama, max guests,
+                            isOnlyPemberkatan) di URL undangan dengan encoding.
+                            Contoh:{" "}
+                            <code className="bg-white px-1 py-0.5 rounded text-xs">
+                                ?data=abc123
+                            </code>{" "}
+                            instead of{" "}
+                            <code className="bg-white px-1 py-0.5 rounded text-xs">
+                                ?name=John&maxGuests=2
+                            </code>
+                        </span>
+                    </div>
+                </label>
             </div>
 
             <button

@@ -28,10 +28,12 @@ export default async function GuestsPage() {
         include: {
             wedding: {
                 select: {
+                    id: true,
                     name: true,
                     slug: true,
                     weddingDate: true,
                     venue: true,
+                    encodeInvitationParams: true,
                     invitationTemplate: {
                         select: {
                             template: true,

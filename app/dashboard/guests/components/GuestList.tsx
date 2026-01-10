@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Guest, Wedding, InvitationTemplate } from "@prisma/client";
+import toast from "react-hot-toast";
 
 type GuestWithWedding = Guest & {
-    wedding: Pick<Wedding, "name" | "weddingDate" | "venue"> & {
+    wedding: Pick<
+        Wedding,
+        "id" | "name" | "weddingDate" | "venue" | "encodeInvitationParams"
+    > & {
         invitationTemplate: Pick<InvitationTemplate, "template"> | null;
     };
 };
@@ -14,20 +18,70 @@ export function GuestList({ guests }: { guests: GuestWithWedding[] }) {
     const router = useRouter();
     const [filter, setFilter] = useState("ALL");
     const [selectedGuests, setSelectedGuests] = useState<string[]>([]);
+    const [isUpdatingEncoding, setIsUpdatingEncoding] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showEncodingModal, setShowEncodingModal] = useState(false);
+    const [guestToDelete, setGuestToDelete] = useState<string | null>(null);
+    const [pendingEncodingValue, setPendingEncodingValue] = useState(false);
+
+    // Get unique wedding from guests (assuming all guests are from same wedding on this page)
+    const wedding = guests[0]?.wedding;
+    const weddingId = wedding?.id;
+
+    const handleToggleEncoding = () => {
+        if (!weddingId) return;
+        const newValue = !wedding.encodeInvitationParams;
+        setPendingEncodingValue(newValue);
+        setShowEncodingModal(true);
+    };
+
+    const confirmToggleEncoding = async () => {
+        setShowEncodingModal(false);
+        setIsUpdatingEncoding(true);
+        try {
+            const response = await fetch(`/api/weddings/${weddingId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    encodeInvitationParams: pendingEncodingValue,
+                }),
+            });
+
+            if (!response.ok)
+                throw new Error("Failed to update encoding setting");
+
+            router.refresh();
+        } catch (error) {
+            console.error("Error updating encoding setting:", error);
+            toast.error("Failed to update encoding setting. Please try again.");
+        } finally {
+            setIsUpdatingEncoding(false);
+        }
+    };
 
     const filteredGuests = guests.filter((guest) => {
         if (filter === "ALL") return true;
         return guest.rsvpStatus === filter;
     });
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this guest?")) return;
+    const handleDelete = (id: string) => {
+        setGuestToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!guestToDelete) return;
+        setShowDeleteModal(false);
 
         try {
-            await fetch(`/api/guests/${id}`, { method: "DELETE" });
+            await fetch(`/api/guests/${guestToDelete}`, { method: "DELETE" });
+            toast.success("Guest deleted successfully");
             router.refresh();
         } catch (error) {
             console.error("Error deleting guest:", error);
+            toast.error("Failed to delete guest");
+        } finally {
+            setGuestToDelete(null);
         }
     };
 
@@ -48,6 +102,36 @@ export function GuestList({ guests }: { guests: GuestWithWedding[] }) {
         const wedding = guest.wedding;
         const customTemplate = wedding.invitationTemplate?.template;
 
+        // Build invitation URL with encoding option
+        const baseUrl =
+            process.env.NEXT_PUBLIC_INVITATION_URL ||
+            "https://invitation.example.com";
+
+        let invitationUrl = baseUrl;
+
+        if (wedding.encodeInvitationParams) {
+            // Encode all params as base64 for privacy
+            const params = {
+                name: guest.name,
+                maxGuests: guest.maxGuests || 1,
+                isOnlyPemberkatan: guest.isOnlyPemberkatan || false,
+                code: guest.invitationCode || "",
+            };
+            const encodedData = Buffer.from(JSON.stringify(params)).toString(
+                "base64"
+            );
+            invitationUrl = `${baseUrl}?data=${encodedData}`;
+        } else {
+            // Regular query params
+            const params = new URLSearchParams({
+                name: guest.name,
+                maxGuests: String(guest.maxGuests || 1),
+                isOnlyPemberkatan: String(guest.isOnlyPemberkatan || false),
+                code: guest.invitationCode || "",
+            });
+            invitationUrl = `${baseUrl}?${params.toString()}`;
+        }
+
         // Default template if no custom template exists - using direct emoji characters
         const defaultTemplate = `Halo {guestName}! 👋
 
@@ -64,8 +148,27 @@ Terima kasih! 🙏`;
 
         const template = customTemplate || defaultTemplate;
 
-        // Replace placeholders
-        return template
+        // Replace invitationUrl first (this already includes all necessary params)
+        let result = template.replace(/{invitationUrl}/g, invitationUrl);
+
+        // Only replace individual parameter placeholders if they're NOT already part of invitationUrl
+        // This prevents double parameters when template uses both {invitationUrl} and {name}, {maxGuests}, etc.
+        if (!template.includes("{invitationUrl}")) {
+            // Legacy template format - manually construct URL with params
+            const params = new URLSearchParams({
+                name: guest.name,
+                maxGuests: String(guest.maxGuests || 1),
+                isOnlyPemberkatan: String(guest.isOnlyPemberkatan || false),
+                code: guest.invitationCode || "",
+            });
+            result = result.replace(
+                /{baseUrl}/g,
+                `${baseUrl}?${params.toString()}`
+            );
+        }
+
+        // Replace other placeholders
+        result = result
             .replace(/{guestName}/g, guest.name)
             .replace(/{guestNameEncoded}/g, encodeURIComponent(guest.name))
             .replace(
@@ -90,12 +193,9 @@ Terima kasih! 🙏`;
                     }
                 )
             )
-            .replace(/{venue}/g, wedding.venue || "TBA")
-            .replace(
-                /{invitationUrl}/g,
-                process.env.NEXT_PUBLIC_INVITATION_URL ||
-                    "https://invitation.example.com"
-            );
+            .replace(/{venue}/g, wedding.venue || "TBA");
+
+        return result;
     };
 
     const handleCopyInvitation = (guest: GuestWithWedding) => {
@@ -103,18 +203,18 @@ Terima kasih! 🙏`;
         navigator.clipboard
             .writeText(invitationText)
             .then(() => {
-                alert(
-                    `✅ Invitation text for ${guest.name} copied to clipboard!\n\nYou can now paste it to WhatsApp or any messaging app.`
+                toast.success(
+                    `Invitation for ${guest.name} copied to clipboard!`
                 );
             })
             .catch(() => {
-                alert("❌ Failed to copy invitation text");
+                toast.error("Failed to copy invitation text");
             });
     };
 
     const handleBulkCopy = () => {
         if (selectedGuests.length === 0) {
-            alert("Please select guests to copy invitations");
+            toast.error("Please select guests to copy invitations");
             return;
         }
 
@@ -131,12 +231,12 @@ Terima kasih! 🙏`;
         navigator.clipboard
             .writeText(invitationsText)
             .then(() => {
-                alert(
-                    `✅ ${selectedGuests.length} invitation texts copied!\n\nEach invitation is separated by a line. Copy and paste to each guest individually.`
+                toast.success(
+                    `${selectedGuests.length} invitation texts copied to clipboard!`
                 );
             })
             .catch(() => {
-                alert("❌ Failed to copy invitation texts");
+                toast.error("Failed to copy invitation texts");
             });
     };
 
@@ -174,6 +274,45 @@ Terima kasih! 🙏`;
 
     return (
         <div>
+            {/* Encoding Toggle */}
+            {wedding && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                                🔒 URL Parameter Encoding
+                            </h3>
+                            <p className="text-xs text-gray-600">
+                                {wedding.encodeInvitationParams
+                                    ? "Enabled: Guest info is encoded in invitation URLs for privacy"
+                                    : "Disabled: Guest info is visible in invitation URLs"}
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleToggleEncoding}
+                            disabled={isUpdatingEncoding}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                wedding.encodeInvitationParams
+                                    ? "bg-green-600"
+                                    : "bg-gray-300"
+                            } ${
+                                isUpdatingEncoding
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                            }`}
+                        >
+                            <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                    wedding.encodeInvitationParams
+                                        ? "translate-x-6"
+                                        : "translate-x-1"
+                                }`}
+                            />
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div className="flex justify-between items-center mb-4">
                 <div className="flex gap-2">
                     {["ALL", "PENDING", "CONFIRMED", "DECLINED"].map(
@@ -300,9 +439,7 @@ Terima kasih! 🙏`;
                                                     className="text-green-600 hover:text-green-800 hover:underline inline-flex items-center gap-1"
                                                     title="Send invitation via WhatsApp"
                                                 >
-                                                    <span>
-                                                        {guest.phone}
-                                                    </span>
+                                                    <span>{guest.phone}</span>
                                                     <svg
                                                         className="w-4 h-4"
                                                         fill="currentColor"
@@ -422,6 +559,70 @@ Terima kasih! 🙏`;
                             ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            Delete Guest
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to delete this guest? This
+                            action cannot be undone.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setGuestToDelete(null);
+                                }}
+                                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Encoding Toggle Confirmation Modal */}
+            {showEncodingModal && (
+                <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {pendingEncodingValue
+                                ? "Enable URL Encoding"
+                                : "Disable URL Encoding"}
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                            {pendingEncodingValue
+                                ? "This will hide sensitive guest information in invitation links. URLs will use encoded parameters."
+                                : "Guest information will be visible in invitation links. URLs will use plain query parameters."}
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setShowEncodingModal(false)}
+                                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmToggleEncoding}
+                                className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                            >
+                                {pendingEncodingValue ? "Enable" : "Disable"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
