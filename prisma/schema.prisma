@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User roles: SUPER_ADMIN (manage all weddings and users), ADMIN (manage assigned wedding)
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+// Guest RSVP status
+enum RSVPStatus {
+  PENDING
+  CONFIRMED
+  DECLINED
+}
+
+// Users table for authentication and authorization
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String    // hashed password
+  role          UserRole  @default(ADMIN)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relationships
+  weddings      Wedding[]
+  
+  @@index([email])
+}
+
+// Wedding events (e.g., Ivan-Olivia wedding)
+model Wedding {
+  id              String    @id @default(cuid())
+  name            String    // e.g., "Ivan & Olivia"
+  slug            String    @unique // URL-friendly: "ivan-olivia"
+  groomName       String
+  brideName       String
+  weddingDate     DateTime
+  venue           String
+  description     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Admin who manages this wedding
+  adminId         String
+  admin           User      @relation(fields: [adminId], references: [id])
+  
+  // Relationships
+  guests          Guest[]
+  invitationTemplate InvitationTemplate?
+  
+  @@index([slug])
+  @@index([adminId])
+}
+
+// Guests for each wedding
+model Guest {
+  id              String      @id @default(cuid())
+  name            String
+  email           String?
+  phone           String?
+  invitationCode  String?     @unique // Unique code for secure invitation link
+  rsvpStatus      RSVPStatus  @default(PENDING)
+  rsvpAt          DateTime?   // When they responded
+  numberOfGuests  Int         @default(1) // Including plus ones
+  maxGuests       Int         @default(1) // Maximum guests allowed for this invitation
+  isOnlyPemberkatan Boolean   @default(false) // If true, only pemberkatan option shown
+  eventType       String?     // "blessing-reception" or "reception-only" - guest's final choice
+  notes           String?     // Wishes/messages from guest
+  invitationSent  Boolean     @default(false)
+  invitationSentAt DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  // Wedding relationship
+  weddingId       String
+  wedding         Wedding     @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  
+  @@unique([weddingId, phone])
+  @@index([weddingId])
+  @@index([phone])
+  @@index([email])
+  @@index([invitationCode])
+}
+
+// Invitation Template for each wedding
+model InvitationTemplate {
+  id              String    @id @default(cuid())
+  template        String    @db.Text // Template with placeholders: {guestName}, {weddingName}, {weddingDate}, {venue}, {invitationUrl}
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Wedding relationship (one template per wedding)
+  weddingId       String    @unique
+  wedding         Wedding   @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  
+  @@index([weddingId])
+}
