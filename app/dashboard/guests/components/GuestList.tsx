@@ -153,35 +153,11 @@ export function GuestList({ guests }: { guests: GuestWithWedding[] }) {
         const wedding = guest.wedding;
         const customTemplate = wedding.invitationTemplate?.template;
 
-        // Build invitation URL with encoding option
-        const baseUrl =
+        // Use short URL format with invitation code on invitation domain
+        const invitationBaseUrl =
             process.env.NEXT_PUBLIC_INVITATION_URL ||
             "https://invitation.example.com";
-
-        let invitationUrl = baseUrl;
-
-        if (wedding.encodeInvitationParams) {
-            // Encode all params as base64 for privacy
-            const params = {
-                name: guest.name,
-                maxGuests: guest.maxGuests || 1,
-                isOnlyPemberkatan: guest.isOnlyPemberkatan || false,
-                code: guest.invitationCode || "",
-            };
-            const encodedData = Buffer.from(JSON.stringify(params)).toString(
-                "base64"
-            );
-            invitationUrl = `${baseUrl}?data=${encodedData}`;
-        } else {
-            // Regular query params
-            const params = new URLSearchParams({
-                name: guest.name,
-                maxGuests: String(guest.maxGuests || 1),
-                isOnlyPemberkatan: String(guest.isOnlyPemberkatan || false),
-                code: guest.invitationCode || "",
-            });
-            invitationUrl = `${baseUrl}?${params.toString()}`;
-        }
+        const invitationUrl = `${invitationBaseUrl}/i/${guest.invitationCode}`;
 
         // Default template if no custom template exists - using direct emoji characters
         const defaultTemplate = `Halo {guestName}! 👋
@@ -199,24 +175,8 @@ Terima kasih! 🙏`;
 
         const template = customTemplate || defaultTemplate;
 
-        // Replace invitationUrl first (this already includes all necessary params)
+        // Replace invitationUrl with short URL
         let result = template.replace(/{invitationUrl}/g, invitationUrl);
-
-        // Only replace individual parameter placeholders if they're NOT already part of invitationUrl
-        // This prevents double parameters when template uses both {invitationUrl} and {name}, {maxGuests}, etc.
-        if (!template.includes("{invitationUrl}")) {
-            // Legacy template format - manually construct URL with params
-            const params = new URLSearchParams({
-                name: guest.name,
-                maxGuests: String(guest.maxGuests || 1),
-                isOnlyPemberkatan: String(guest.isOnlyPemberkatan || false),
-                code: guest.invitationCode || "",
-            });
-            result = result.replace(
-                /{baseUrl}/g,
-                `${baseUrl}?${params.toString()}`
-            );
-        }
 
         // Replace other placeholders
         result = result
