@@ -21,8 +21,22 @@ export function GuestList({ guests }: { guests: GuestWithWedding[] }) {
     const [isUpdatingEncoding, setIsUpdatingEncoding] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showEncodingModal, setShowEncodingModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [guestToDelete, setGuestToDelete] = useState<string | null>(null);
     const [pendingEncodingValue, setPendingEncodingValue] = useState(false);
+    const [guestToEdit, setGuestToEdit] = useState<GuestWithWedding | null>(
+        null
+    );
+    const [editFormData, setEditFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        maxGuests: 1,
+        numberOfGuests: 0,
+        isOnlyPemberkatan: false,
+        eventType: "",
+        notes: "",
+    });
 
     // Get unique wedding from guests (assuming all guests are from same wedding on this page)
     const wedding = guests[0]?.wedding;
@@ -63,6 +77,43 @@ export function GuestList({ guests }: { guests: GuestWithWedding[] }) {
         if (filter === "ALL") return true;
         return guest.rsvpStatus === filter;
     });
+
+    const handleEdit = (guest: GuestWithWedding) => {
+        setGuestToEdit(guest);
+        setEditFormData({
+            name: guest.name,
+            email: guest.email || "",
+            phone: guest.phone || "",
+            maxGuests: guest.maxGuests,
+            numberOfGuests: guest.numberOfGuests,
+            isOnlyPemberkatan: guest.isOnlyPemberkatan,
+            eventType: guest.eventType || "",
+            notes: guest.notes || "",
+        });
+        setShowEditModal(true);
+    };
+
+    const confirmEdit = async () => {
+        if (!guestToEdit) return;
+
+        try {
+            const response = await fetch(`/api/guests/${guestToEdit.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(editFormData),
+            });
+
+            if (!response.ok) throw new Error("Failed to update guest");
+
+            toast.success("Guest updated successfully");
+            setShowEditModal(false);
+            setGuestToEdit(null);
+            router.refresh();
+        } catch (error) {
+            console.error("Error updating guest:", error);
+            toast.error("Failed to update guest");
+        }
+    };
 
     const handleDelete = (id: string) => {
         setGuestToDelete(id);
@@ -337,7 +388,7 @@ Terima kasih! 🙏`;
                         onClick={handleBulkCopy}
                         className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
                     >
-                        📋 Copy {selectedGuests.length} Invitations
+                        Copy {selectedGuests.length} Invitations
                     </button>
                 )}
             </div>
@@ -543,7 +594,15 @@ Terima kasih! 🙏`;
                                                 className="text-green-600 hover:text-green-800 text-sm font-medium"
                                                 title="Copy invitation text"
                                             >
-                                                📋 Copy
+                                                Copy
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleEdit(guest)
+                                                }
+                                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                            >
+                                                Edit
                                             </button>
                                             <button
                                                 onClick={() =>
@@ -557,6 +616,192 @@ Terima kasih! 🙏`;
                                     </td>
                                 </tr>
                             ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {/* Edit Guest Modal */}
+            {showEditModal && guestToEdit && (
+                <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            Edit Guest
+                        </h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editFormData.name}
+                                    onChange={(e) =>
+                                        setEditFormData({
+                                            ...editFormData,
+                                            name: e.target.value,
+                                        })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    required
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Phone
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editFormData.phone}
+                                        onChange={(e) =>
+                                            setEditFormData({
+                                                ...editFormData,
+                                                phone: e.target.value,
+                                            })
+                                        }
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={editFormData.email}
+                                        onChange={(e) =>
+                                            setEditFormData({
+                                                ...editFormData,
+                                                email: e.target.value,
+                                            })
+                                        }
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Max Guests
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={editFormData.maxGuests}
+                                        onChange={(e) =>
+                                            setEditFormData({
+                                                ...editFormData,
+                                                maxGuests: parseInt(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Actual Guests
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={editFormData.numberOfGuests}
+                                        onChange={(e) =>
+                                            setEditFormData({
+                                                ...editFormData,
+                                                numberOfGuests: parseInt(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Event Type
+                                </label>
+                                <select
+                                    value={editFormData.eventType}
+                                    onChange={(e) =>
+                                        setEditFormData({
+                                            ...editFormData,
+                                            eventType: e.target.value,
+                                        })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                >
+                                    <option value="">Not specified</option>
+                                    <option value="blessing-reception">
+                                        Pemberkatan + Resepsi
+                                    </option>
+                                    <option value="reception-only">
+                                        Resepsi Saja
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={editFormData.isOnlyPemberkatan}
+                                        onChange={(e) =>
+                                            setEditFormData({
+                                                ...editFormData,
+                                                isOnlyPemberkatan:
+                                                    e.target.checked,
+                                            })
+                                        }
+                                        className="rounded"
+                                    />
+                                    <span className="text-sm font-medium text-gray-700">
+                                        Pemberkatan Only (Hide reception option
+                                        in invitation)
+                                    </span>
+                                </label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Notes / Wishes
+                                </label>
+                                <textarea
+                                    value={editFormData.notes}
+                                    onChange={(e) =>
+                                        setEditFormData({
+                                            ...editFormData,
+                                            notes: e.target.value,
+                                        })
+                                    }
+                                    rows={3}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex gap-3 justify-end mt-6">
+                            <button
+                                onClick={() => {
+                                    setShowEditModal(false);
+                                    setGuestToEdit(null);
+                                }}
+                                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmEdit}
+                                className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/*             ))}
                         </tbody>
                     </table>
                 </div>

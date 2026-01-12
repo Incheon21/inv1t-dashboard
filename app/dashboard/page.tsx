@@ -48,6 +48,21 @@ export default async function DashboardPage() {
                 />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <StatCard
+                    title="Pemberkatan Saja"
+                    value={stats.pemberkatanOnly}
+                    icon="⛪"
+                    color="blue"
+                />
+                <StatCard
+                    title="Keduanya"
+                    value={stats.both}
+                    icon="🎉"
+                    color="green"
+                />
+            </div>
+
             {isSuperAdmin && (
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                     <h2 className="text-xl font-semibold mb-4">
@@ -141,6 +156,8 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
             confirmed,
             pending,
             declined,
+            pemberkatanOnlyResult,
+            bothResult,
             totalWeddings,
             totalAdmins,
         ] = await Promise.all([
@@ -148,6 +165,20 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
             prisma.guest.count({ where: { rsvpStatus: "CONFIRMED" } }),
             prisma.guest.count({ where: { rsvpStatus: "PENDING" } }),
             prisma.guest.count({ where: { rsvpStatus: "DECLINED" } }),
+            prisma.guest.aggregate({
+                where: {
+                    isOnlyPemberkatan: true,
+                    rsvpStatus: "CONFIRMED",
+                },
+                _sum: { numberOfGuests: true },
+            }),
+            prisma.guest.aggregate({
+                where: {
+                    eventType: "blessing-reception",
+                    rsvpStatus: "CONFIRMED",
+                },
+                _sum: { numberOfGuests: true },
+            }),
             prisma.wedding.count(),
             prisma.user.count(),
         ]);
@@ -157,6 +188,8 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
             confirmed,
             pending,
             declined,
+            pemberkatanOnly: pemberkatanOnlyResult._sum.numberOfGuests || 0,
+            both: bothResult._sum.numberOfGuests || 0,
             totalWeddings,
             totalAdmins,
         };
@@ -168,7 +201,14 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
 
         const weddingIds = userWeddings.map((w) => w.id);
 
-        const [totalGuests, confirmed, pending, declined] = await Promise.all([
+        const [
+            totalGuests,
+            confirmed,
+            pending,
+            declined,
+            pemberkatanOnlyResult,
+            bothResult,
+        ] = await Promise.all([
             prisma.guest.count({
                 where: { weddingId: { in: weddingIds } },
             }),
@@ -190,6 +230,22 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
                     rsvpStatus: "DECLINED",
                 },
             }),
+            prisma.guest.aggregate({
+                where: {
+                    weddingId: { in: weddingIds },
+                    isOnlyPemberkatan: true,
+                    rsvpStatus: "CONFIRMED",
+                },
+                _sum: { numberOfGuests: true },
+            }),
+            prisma.guest.aggregate({
+                where: {
+                    weddingId: { in: weddingIds },
+                    eventType: "blessing-reception",
+                    rsvpStatus: "CONFIRMED",
+                },
+                _sum: { numberOfGuests: true },
+            }),
         ]);
 
         return {
@@ -197,6 +253,8 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
             confirmed,
             pending,
             declined,
+            pemberkatanOnly: pemberkatanOnlyResult._sum.numberOfGuests || 0,
+            both: bothResult._sum.numberOfGuests || 0,
             totalWeddings: 0,
             totalAdmins: 0,
         };
