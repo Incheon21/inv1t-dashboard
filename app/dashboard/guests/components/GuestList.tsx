@@ -17,6 +17,7 @@ type GuestWithWedding = Guest & {
 export function GuestList({ guests }: { guests: GuestWithWedding[] }) {
     const router = useRouter();
     const [filter, setFilter] = useState("ALL");
+    const [searchQuery, setSearchQuery] = useState("");
     const [selectedGuests, setSelectedGuests] = useState<string[]>([]);
     const [isUpdatingEncoding, setIsUpdatingEncoding] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -74,8 +75,23 @@ export function GuestList({ guests }: { guests: GuestWithWedding[] }) {
     };
 
     const filteredGuests = guests.filter((guest) => {
-        if (filter === "ALL") return true;
-        return guest.rsvpStatus === filter;
+        // Filter by RSVP status
+        if (filter !== "ALL" && guest.rsvpStatus !== filter) return false;
+        
+        // Filter by search query
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            const matchesName = guest.name.toLowerCase().includes(query);
+            const matchesEmail = guest.email?.toLowerCase().includes(query);
+            const matchesPhone = guest.phone?.toLowerCase().includes(query);
+            const matchesNotes = guest.notes?.toLowerCase().includes(query);
+            
+            if (!matchesName && !matchesEmail && !matchesPhone && !matchesNotes) {
+                return false;
+            }
+        }
+        
+        return true;
     });
 
     const handleEdit = (guest: GuestWithWedding) => {
@@ -324,14 +340,60 @@ Terima kasih! 🙏`;
                 </div>
             )}
 
-            <div className="flex justify-between items-center mb-4">
-                <div className="flex gap-2">
+            {/* Search Bar */}
+            <div className="mb-4">
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="Search guests by name, email, phone, or notes..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    />
+                    <svg
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                    </svg>
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery("")}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                            <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                <div className="flex flex-wrap gap-2">
                     {["ALL", "PENDING", "CONFIRMED", "DECLINED"].map(
                         (status) => (
                             <button
                                 key={status}
                                 onClick={() => setFilter(status)}
-                                className={`px-4 py-2 rounded-lg font-medium transition ${
+                                className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition text-sm ${
                                     filter === status
                                         ? "bg-pink-600 text-white"
                                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -346,7 +408,7 @@ Terima kasih! 🙏`;
                 {selectedGuests.length > 0 && (
                     <button
                         onClick={handleBulkCopy}
-                        className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
+                        className="px-4 sm:px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition text-sm sm:text-base w-full sm:w-auto"
                     >
                         Copy {selectedGuests.length} Invitations
                     </button>
@@ -358,47 +420,49 @@ Terima kasih! 🙏`;
                     No guests found
                 </p>
             ) : (
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-gray-200">
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        checked={
-                                            selectedGuests.length ===
-                                                filteredGuests.length &&
-                                            filteredGuests.length > 0
-                                        }
-                                        onChange={toggleSelectAll}
-                                        className="rounded"
-                                    />
-                                </th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
+                    <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                            <table className="w-full bg-white">
+                                <thead className="bg-gray-50">
+                                    <tr className="border-b border-gray-200">
+                                        <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">
+                                            <input
+                                                type="checkbox"
+                                                checked={
+                                                    selectedGuests.length ===
+                                                        filteredGuests.length &&
+                                                    filteredGuests.length > 0
+                                                }
+                                                onChange={toggleSelectAll}
+                                                className="rounded"
+                                            />
+                                        </th>
+                                        <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">
                                     Name
                                 </th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                                <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">
                                     Contact
                                 </th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                                <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">
                                     Wedding
                                 </th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                                <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">
                                     Max Guests
                                 </th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                                <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">
                                     Actual Guests
                                 </th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                                <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">
                                     Event Type
                                 </th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                                <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">
                                     Status
                                 </th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                                <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">
                                     Wishes/Notes
                                 </th>
-                                <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                                <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">
                                     Actions
                                 </th>
                             </tr>
@@ -409,7 +473,7 @@ Terima kasih! 🙏`;
                                     key={guest.id}
                                     className="border-b border-gray-100 hover:bg-gray-50"
                                 >
-                                    <td className="py-3 px-4">
+                                    <td className="py-3 px-2 sm:px-4">
                                         <input
                                             type="checkbox"
                                             checked={selectedGuests.includes(
@@ -421,9 +485,9 @@ Terima kasih! 🙏`;
                                             className="rounded"
                                         />
                                     </td>
-                                    <td className="py-3 px-4">
+                                    <td className="py-3 px-2 sm:px-4">
                                         <div>
-                                            <p className="font-medium text-gray-900">
+                                            <p className="font-medium text-gray-900 text-xs sm:text-sm">
                                                 {guest.name}
                                                 {guest.invitationSent && (
                                                     <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
@@ -438,7 +502,7 @@ Terima kasih! 🙏`;
                                             )}
                                         </div>
                                     </td>
-                                    <td className="py-3 px-4 text-sm">
+                                    <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm">
                                         {guest.phone && (
                                             <div className="inline-flex items-center gap-1">
                                                 <a
@@ -467,21 +531,21 @@ Terima kasih! 🙏`;
                                             </div>
                                         )}
                                     </td>
-                                    <td className="py-3 px-4 text-sm text-gray-600">
+                                    <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm text-gray-600">
                                         {guest.wedding.name}
                                     </td>
-                                    <td className="py-3 px-4 text-sm text-gray-600">
+                                    <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm text-gray-600">
                                         {guest.maxGuests || 1}
                                         {guest.isOnlyPemberkatan && (
-                                            <span className="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded">
+                                            <span className="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded whitespace-nowrap">
                                                 Pemberkatan Only
                                             </span>
                                         )}
                                     </td>
-                                    <td className="py-3 px-4 text-sm text-gray-600">
+                                    <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm text-gray-600">
                                         {guest.numberOfGuests || 0}
                                     </td>
-                                    <td className="py-3 px-4 text-sm text-gray-600">
+                                    <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm text-gray-600">
                                         {guest.eventType ? (
                                             <span
                                                 className={`px-2 py-1 rounded text-xs ${
@@ -531,7 +595,7 @@ Terima kasih! 🙏`;
                                             </option>
                                         </select>
                                     </td>
-                                    <td className="py-3 px-4 text-sm text-gray-600 max-w-xs">
+                                    <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm text-gray-600 max-w-xs">
                                         {guest.notes ? (
                                             <div
                                                 className="truncate"
@@ -545,13 +609,13 @@ Terima kasih! 🙏`;
                                             </span>
                                         )}
                                     </td>
-                                    <td className="py-3 px-4">
-                                        <div className="flex gap-2">
+                                    <td className="py-3 px-2 sm:px-4">
+                                        <div className="flex gap-1 sm:gap-2">
                                             <button
                                                 onClick={() =>
                                                     handleCopyInvitation(guest)
                                                 }
-                                                className="text-green-600 hover:text-green-800 text-sm font-medium"
+                                                className="text-green-600 hover:text-green-800 text-xs sm:text-sm font-medium whitespace-nowrap"
                                                 title="Copy invitation text"
                                             >
                                                 Copy
@@ -560,7 +624,7 @@ Terima kasih! 🙏`;
                                                 onClick={() =>
                                                     handleEdit(guest)
                                                 }
-                                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                                className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium whitespace-nowrap"
                                             >
                                                 Edit
                                             </button>
@@ -568,7 +632,7 @@ Terima kasih! 🙏`;
                                                 onClick={() =>
                                                     handleDelete(guest.id)
                                                 }
-                                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                                className="text-red-600 hover:text-red-800 text-xs sm:text-sm font-medium whitespace-nowrap"
                                             >
                                                 Delete
                                             </button>
@@ -578,6 +642,8 @@ Terima kasih! 🙏`;
                             ))}
                         </tbody>
                     </table>
+                        </div>
+                    </div>
                 </div>
             )}
 

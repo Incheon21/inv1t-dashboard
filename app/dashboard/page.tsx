@@ -12,16 +12,16 @@ export default async function DashboardPage() {
 
     return (
         <div className="max-w-7xl mx-auto">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="mb-6 sm:mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                     Welcome back, {session?.user?.name}!
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-sm sm:text-base text-gray-600">
                     Manage your wedding invitations and guests
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <StatCard
                     title="Total Guests"
                     value={stats.totalGuests}
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <StatCard
                     title="Pemberkatan Saja"
                     value={stats.pemberkatanOnly}
@@ -60,6 +60,12 @@ export default async function DashboardPage() {
                     value={stats.both}
                     icon="🎉"
                     color="green"
+                />
+                <StatCard
+                    title="Resepsi Saja"
+                    value={stats.receptionOnly}
+                    icon="🍽️"
+                    color="yellow"
                 />
             </div>
 
@@ -89,22 +95,22 @@ export default async function DashboardPage() {
                 </div>
             )}
 
-            <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl shadow-lg p-8 text-white">
-                <h2 className="text-2xl font-bold mb-2">Quick Actions</h2>
-                <p className="mb-6 text-pink-100">
+            <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl shadow-lg p-6 sm:p-8 text-white">
+                <h2 className="text-xl sm:text-2xl font-bold mb-2">Quick Actions</h2>
+                <p className="mb-4 sm:mb-6 text-pink-100 text-sm sm:text-base">
                     Get started with managing your guests
                 </p>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <a
                         href="/dashboard/guests"
-                        className="bg-white text-pink-600 px-6 py-3 rounded-lg font-semibold hover:bg-pink-50 transition"
+                        className="bg-white text-pink-600 px-6 py-3 rounded-lg font-semibold hover:bg-pink-50 transition text-center"
                     >
                         Manage Guests
                     </a>
                     {isSuperAdmin && (
                         <a
                             href="/dashboard/users"
-                            className="bg-white/20 backdrop-blur text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition"
+                            className="bg-white/20 backdrop-blur text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition text-center"
                         >
                             Manage Users
                         </a>
@@ -158,6 +164,7 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
             declined,
             pemberkatanOnlyResult,
             bothResult,
+            receptionOnlyResult,
             totalWeddings,
             totalAdmins,
         ] = await Promise.all([
@@ -179,6 +186,13 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
                 },
                 _sum: { numberOfGuests: true },
             }),
+            prisma.guest.aggregate({
+                where: {
+                    eventType: "reception-only",
+                    rsvpStatus: "CONFIRMED",
+                },
+                _sum: { numberOfGuests: true },
+            }),
             prisma.wedding.count(),
             prisma.user.count(),
         ]);
@@ -190,6 +204,7 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
             declined,
             pemberkatanOnly: pemberkatanOnlyResult._sum.numberOfGuests || 0,
             both: bothResult._sum.numberOfGuests || 0,
+            receptionOnly: receptionOnlyResult._sum.numberOfGuests || 0,
             totalWeddings,
             totalAdmins,
         };
@@ -208,6 +223,7 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
             declined,
             pemberkatanOnlyResult,
             bothResult,
+            receptionOnlyResult,
         ] = await Promise.all([
             prisma.guest.count({
                 where: { weddingId: { in: weddingIds } },
@@ -246,6 +262,14 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
                 },
                 _sum: { numberOfGuests: true },
             }),
+            prisma.guest.aggregate({
+                where: {
+                    weddingId: { in: weddingIds },
+                    eventType: "reception-only",
+                    rsvpStatus: "CONFIRMED",
+                },
+                _sum: { numberOfGuests: true },
+            }),
         ]);
 
         return {
@@ -255,6 +279,7 @@ async function getStats(userId: string, isSuperAdmin: boolean) {
             declined,
             pemberkatanOnly: pemberkatanOnlyResult._sum.numberOfGuests || 0,
             both: bothResult._sum.numberOfGuests || 0,
+            receptionOnly: receptionOnlyResult._sum.numberOfGuests || 0,
             totalWeddings: 0,
             totalAdmins: 0,
         };
