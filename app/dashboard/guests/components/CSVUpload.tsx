@@ -40,7 +40,7 @@ export function CSVUpload({ weddings }: { weddings: Wedding[] }) {
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
         const fileInput = document.getElementById(
-            "csv-file"
+            "csv-file",
         ) as HTMLInputElement;
         const file = fileInput?.files?.[0];
 
@@ -110,7 +110,7 @@ export function CSVUpload({ weddings }: { weddings: Wedding[] }) {
                     <select
                         value={weddingId}
                         onChange={(e) => setWeddingId(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     >
                         {weddings.map((wedding) => (
                             <option key={wedding.id} value={wedding.id}>
@@ -125,8 +125,8 @@ export function CSVUpload({ weddings }: { weddings: Wedding[] }) {
                 <div
                     className={`p-4 rounded-lg ${
                         message.type === "success"
-                            ? "bg-green-50 text-green-800"
-                            : "bg-red-50 text-red-800"
+                            ? "bg-gray-100 text-gray-900"
+                            : "bg-gray-100 text-gray-900"
                     }`}
                 >
                     <p className="text-sm font-medium">{message.text}</p>
@@ -142,7 +142,7 @@ export function CSVUpload({ weddings }: { weddings: Wedding[] }) {
                     type="file"
                     accept=".csv"
                     onChange={handleFileUpload}
-                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-900 hover:file:bg-gray-200"
                 />
                 <p className="text-xs text-gray-500 mt-2">
                     CSV should have columns: name, email, phone, numberOfGuests,
@@ -168,16 +168,16 @@ export function CSVUpload({ weddings }: { weddings: Wedding[] }) {
             <button
                 onClick={handleUpload}
                 disabled={loading || preview.length === 0}
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition disabled:opacity-50"
+                className="w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition disabled:opacity-50"
             >
                 {loading ? "Importing..." : "Import Guests"}
             </button>
 
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm font-medium text-blue-900 mb-2">
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm font-medium text-gray-900 mb-2">
                     CSV Template
                 </p>
-                <code className="text-xs text-blue-800 block overflow-x-auto whitespace-pre">
+                <code className="text-xs text-gray-800 block overflow-x-auto whitespace-pre">
                     name,email,phone,numberOfGuests,maxGuests,isOnlyPemberkatan,notes
                     <br />
                     John Doe,john@example.com,+6281234567890,2,2,false,VIP Guest

@@ -81,7 +81,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     placeholder="John & Jane"
                     required
                 />
@@ -97,7 +97,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                     onChange={(e) =>
                         setFormData({ ...formData, slug: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     placeholder="john-jane"
                     required
                 />
@@ -121,7 +121,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                                 groomName: e.target.value,
                             })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                         required
                     />
                 </div>
@@ -139,7 +139,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                                 brideName: e.target.value,
                             })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                         required
                     />
                 </div>
@@ -158,7 +158,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                             weddingDate: e.target.value,
                         })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     required
                 />
             </div>
@@ -173,7 +173,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                     onChange={(e) =>
                         setFormData({ ...formData, venue: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     placeholder="Grand Ballroom, Jakarta"
                     required
                 />
@@ -191,7 +191,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                             description: e.target.value,
                         })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     rows={3}
                     placeholder="Join us in celebrating our special day!"
                 />
@@ -206,7 +206,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                     onChange={(e) =>
                         setFormData({ ...formData, adminId: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     required
                 >
                     {admins.map((admin) => (
@@ -217,7 +217,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                 </select>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <label className="flex items-start gap-3 cursor-pointer">
                     <input
                         type="checkbox"
@@ -228,7 +228,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
                                 encodeInvitationParams: e.target.checked,
                             })
                         }
-                        className="mt-1 w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
+                        className="mt-1 w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                     />
                     <div>
                         <span className="block font-medium text-gray-900">
@@ -253,7 +253,7 @@ export function AddWeddingForm({ admins }: { admins: Admin[] }) {
             <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-pink-600 hover:to-purple-700 transition disabled:opacity-50"
+                className="w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition disabled:opacity-50"
             >
                 {loading ? "Creating..." : "Create Wedding"}
             </button>

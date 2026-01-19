@@ -69,7 +69,7 @@ export function AddGuestForm({ weddings }: { weddings: Wedding[] }) {
                                 weddingId: e.target.value,
                             })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                         required
                     >
                         {weddings.map((wedding) => (
@@ -91,7 +91,7 @@ export function AddGuestForm({ weddings }: { weddings: Wedding[] }) {
                     onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     required
                 />
             </div>
@@ -107,7 +107,7 @@ export function AddGuestForm({ weddings }: { weddings: Wedding[] }) {
                         onChange={(e) =>
                             setFormData({ ...formData, email: e.target.value })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     />
                 </div>
 
@@ -121,7 +121,7 @@ export function AddGuestForm({ weddings }: { weddings: Wedding[] }) {
                         onChange={(e) =>
                             setFormData({ ...formData, phone: e.target.value })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                         placeholder="+62812..."
                     />
                 </div>
@@ -141,7 +141,7 @@ export function AddGuestForm({ weddings }: { weddings: Wedding[] }) {
                             numberOfGuests: parseInt(e.target.value),
                         })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                 />
             </div>
 
@@ -161,7 +161,7 @@ export function AddGuestForm({ weddings }: { weddings: Wedding[] }) {
                                 maxGuests: parseInt(e.target.value),
                             })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     />
                     <p className="text-xs text-gray-500 mt-1">
                         Maximum guests they can bring
@@ -183,7 +183,7 @@ export function AddGuestForm({ weddings }: { weddings: Wedding[] }) {
                                         isOnlyPemberkatan: e.target.checked,
                                     })
                                 }
-                                className="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
+                                className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
                             <span className="ml-2 text-sm text-gray-700">
                                 Pemberkatan Only
@@ -205,7 +205,7 @@ export function AddGuestForm({ weddings }: { weddings: Wedding[] }) {
                     onChange={(e) =>
                         setFormData({ ...formData, notes: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                     rows={3}
                 />
             </div>
@@ -213,7 +213,7 @@ export function AddGuestForm({ weddings }: { weddings: Wedding[] }) {
             <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-pink-600 hover:to-purple-700 transition disabled:opacity-50"
+                className="w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition disabled:opacity-50"
             >
                 {loading ? "Adding..." : "Add Guest"}
             </button>

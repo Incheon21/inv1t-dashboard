@@ -14,7 +14,7 @@ export function InvitationTemplateEditor({
     weddings: Wedding[];
 }) {
     const [selectedWedding, setSelectedWedding] = useState(
-        weddings[0]?.id || ""
+        weddings[0]?.id || "",
     );
     const [template, setTemplate] = useState("");
     const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ export function InvitationTemplateEditor({
         setLoading(true);
         try {
             const response = await fetch(
-                `/api/invitation-template?weddingId=${selectedWedding}`
+                `/api/invitation-template?weddingId=${selectedWedding}`,
             );
             const data = await response.json();
             setTemplate(data.template || "");
@@ -93,7 +93,7 @@ export function InvitationTemplateEditor({
                                 onChange={(e) =>
                                     setSelectedWedding(e.target.value)
                                 }
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
                             >
                                 {weddings.map((wedding) => (
                                     <option key={wedding.id} value={wedding.id}>
@@ -105,16 +105,16 @@ export function InvitationTemplateEditor({
                     )}
 
                     {/* Placeholders Guide */}
-                    <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                        <h3 className="font-semibold text-blue-900 mb-2">
+                    <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-2">
                             Available Placeholders:
                         </h3>
                         <div className="grid grid-cols-2 gap-2 text-sm">
                             <button
                                 onClick={() => insertPlaceholder("{guestName}")}
-                                className="text-left px-3 py-2 bg-white rounded hover:bg-blue-100 transition"
+                                className="text-left px-3 py-2 bg-white rounded hover:bg-gray-100 transition"
                             >
-                                <code className="text-blue-700">
+                                <code className="text-gray-900">
                                     {"{guestName}"}
                                 </code>{" "}
                                 - Guest name
@@ -123,9 +123,9 @@ export function InvitationTemplateEditor({
                                 onClick={() =>
                                     insertPlaceholder("{invitationCode}")
                                 }
-                                className="text-left px-3 py-2 bg-white rounded hover:bg-blue-100 transition"
+                                className="text-left px-3 py-2 bg-white rounded hover:bg-gray-100 transition"
                             >
-                                <code className="text-blue-700">
+                                <code className="text-gray-900">
                                     {"{invitationCode}"}
                                 </code>{" "}
                                 - Unique code
@@ -134,9 +134,9 @@ export function InvitationTemplateEditor({
                                 onClick={() =>
                                     insertPlaceholder("{guestNameEncoded}")
                                 }
-                                className="text-left px-3 py-2 bg-white rounded hover:bg-blue-100 transition"
+                                className="text-left px-3 py-2 bg-white rounded hover:bg-gray-100 transition"
                             >
-                                <code className="text-blue-700">
+                                <code className="text-gray-900">
                                     {"{guestNameEncoded}"}
                                 </code>{" "}
                                 - Guest name (URL)
@@ -145,18 +145,18 @@ export function InvitationTemplateEditor({
                                 onClick={() =>
                                     insertPlaceholder("{weddingName}")
                                 }
-                                className="text-left px-3 py-2 bg-white rounded hover:bg-blue-100 transition"
+                                className="text-left px-3 py-2 bg-white rounded hover:bg-gray-100 transition"
                             >
-                                <code className="text-blue-700">
+                                <code className="text-gray-900">
                                     {"{weddingName}"}
                                 </code>{" "}
                                 - Wedding names
                             </button>
                             <button
                                 onClick={() => insertPlaceholder("{maxGuests}")}
-                                className="text-left px-3 py-2 bg-white rounded hover:bg-blue-100 transition"
+                                className="text-left px-3 py-2 bg-white rounded hover:bg-gray-100 transition"
                             >
-                                <code className="text-blue-700">
+                                <code className="text-gray-900">
                                     {"{maxGuests}"}
                                 </code>{" "}
                                 - Max guests
@@ -165,9 +165,9 @@ export function InvitationTemplateEditor({
                                 onClick={() =>
                                     insertPlaceholder("{isOnlyPemberkatan}")
                                 }
-                                className="text-left px-3 py-2 bg-white rounded hover:bg-blue-100 transition"
+                                className="text-left px-3 py-2 bg-white rounded hover:bg-gray-100 transition"
                             >
-                                <code className="text-blue-700">
+                                <code className="text-gray-900">
                                     {"{isOnlyPemberkatan}"}
                                 </code>{" "}
                                 - Pemberkatan only
@@ -176,18 +176,18 @@ export function InvitationTemplateEditor({
                                 onClick={() =>
                                     insertPlaceholder("{weddingDate}")
                                 }
-                                className="text-left px-3 py-2 bg-white rounded hover:bg-blue-100 transition"
+                                className="text-left px-3 py-2 bg-white rounded hover:bg-gray-100 transition"
                             >
-                                <code className="text-blue-700">
+                                <code className="text-gray-900">
                                     {"{weddingDate}"}
                                 </code>{" "}
                                 - Wedding date
                             </button>
                             <button
                                 onClick={() => insertPlaceholder("{venue}")}
-                                className="text-left px-3 py-2 bg-white rounded hover:bg-blue-100 transition"
+                                className="text-left px-3 py-2 bg-white rounded hover:bg-gray-100 transition"
                             >
-                                <code className="text-blue-700">
+                                <code className="text-gray-900">
                                     {"{venue}"}
                                 </code>{" "}
                                 - Venue location
@@ -196,9 +196,9 @@ export function InvitationTemplateEditor({
                                 onClick={() =>
                                     insertPlaceholder("{invitationUrl}")
                                 }
-                                className="text-left px-3 py-2 bg-white rounded hover:bg-blue-100 transition col-span-2"
+                                className="text-left px-3 py-2 bg-white rounded hover:bg-gray-100 transition col-span-2"
                             >
-                                <code className="text-blue-700">
+                                <code className="text-gray-900">
                                     {"{invitationUrl}"}
                                 </code>{" "}
                                 - Invitation website link
@@ -220,7 +220,7 @@ export function InvitationTemplateEditor({
                                 value={template}
                                 onChange={(e) => setTemplate(e.target.value)}
                                 rows={12}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none font-mono text-sm"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none font-mono text-sm"
                                 placeholder="Enter your invitation template..."
                             />
                         )}
@@ -235,7 +235,7 @@ export function InvitationTemplateEditor({
                         <button
                             onClick={handleSave}
                             disabled={saving || loading}
-                            className="px-6 py-2 bg-pink-600 text-white rounded-lg font-medium hover:bg-pink-700 transition disabled:opacity-50"
+                            className="px-6 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50"
                         >
                             {saving ? "Saving..." : "Save Template"}
                         </button>
@@ -244,8 +244,8 @@ export function InvitationTemplateEditor({
                             <span
                                 className={`text-sm font-medium ${
                                     message.startsWith("✅")
-                                        ? "text-green-600"
-                                        : "text-red-600"
+                                        ? "text-gray-900"
+                                        : "text-gray-900"
                                 }`}
                             >
                                 {message}
@@ -269,20 +269,20 @@ export function InvitationTemplateEditor({
                                     .replace(
                                         "{weddingName}",
                                         weddings.find(
-                                            (w) => w.id === selectedWedding
-                                        )?.name || "Wedding"
+                                            (w) => w.id === selectedWedding,
+                                        )?.name || "Wedding",
                                     )
                                     .replace(
                                         "{weddingDate}",
-                                        "Saturday, 15 June 2026"
+                                        "Saturday, 15 June 2026",
                                     )
                                     .replace(
                                         "{venue}",
-                                        "Grand Ballroom, Jakarta"
+                                        "Grand Ballroom, Jakarta",
                                     )
                                     .replace(
                                         "{invitationUrl}",
-                                        "https://invitation.example.com"
+                                        "https://invitation.example.com",
                                     )}
                             </div>
                         </div>

@@ -37,8 +37,8 @@ export function UserList({ users }: { users: UserWithWeddings[] }) {
                                 <span
                                     className={`px-3 py-1 rounded-full text-xs font-medium ${
                                         user.role === "SUPER_ADMIN"
-                                            ? "bg-purple-100 text-purple-800"
-                                            : "bg-blue-100 text-blue-800"
+                                            ? "bg-gray-900 text-white"
+                                            : "bg-gray-600 text-white"
                                     }`}
                                 >
                                     {user.role.replace("_", " ")}
@@ -52,7 +52,7 @@ export function UserList({ users }: { users: UserWithWeddings[] }) {
                                     {user.weddings.map((wedding) => (
                                         <span
                                             key={wedding.id}
-                                            className="text-xs bg-pink-50 text-pink-700 px-2 py-1 rounded"
+                                            className="text-xs bg-gray-100 text-gray-900 px-2 py-1 rounded"
                                         >
                                             💒 {wedding.name}
                                         </span>
@@ -62,7 +62,7 @@ export function UserList({ users }: { users: UserWithWeddings[] }) {
                         </div>
                         <button
                             onClick={() => handleDelete(user.id)}
-                            className="text-red-600 hover:text-red-800 text-sm font-medium px-4 py-2 rounded hover:bg-red-50 transition"
+                            className="text-gray-900 hover:text-gray-700 text-sm font-medium px-4 py-2 rounded hover:bg-gray-100 transition"
                         >
                             Delete
                         </button>

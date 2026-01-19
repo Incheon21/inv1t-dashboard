@@ -37,10 +37,10 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
-            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 w-full max-w-md">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         Wedding Dashboard
                     </h1>
                     <p className="text-gray-600">
@@ -62,7 +62,7 @@ export default function LoginPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition"
                             placeholder="admin@wedding.com"
                         />
                     </div>
@@ -80,13 +80,13 @@ export default function LoginPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition"
                             placeholder="••••••••"
                         />
                     </div>
 
                     {error && (
-                        <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">
+                        <div className="bg-gray-100 text-gray-900 px-4 py-3 rounded-lg text-sm border border-gray-200">
                             {error}
                         </div>
                     )}
@@ -94,7 +94,7 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-pink-600 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? "Signing in..." : "Sign In"}
                     </button>

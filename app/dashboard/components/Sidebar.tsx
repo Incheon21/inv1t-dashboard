@@ -76,16 +76,18 @@ export function Sidebar({ user }: SidebarProps) {
 
             {/* Sidebar */}
             <div
-                className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out ${
-                    isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+                className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out ${
+                    isMobileMenuOpen
+                        ? "translate-x-0"
+                        : "-translate-x-full lg:translate-x-0"
                 }`}
             >
                 <div className="p-6 border-b border-gray-200">
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                    <h1 className="text-xl font-bold text-gray-900">
                         Wedding Admin
                     </h1>
                     <p className="text-sm text-gray-600 mt-1">{user.name}</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-500">
                         {user.role?.replace("_", " ") || "ADMIN"}
                     </p>
                 </div>
@@ -100,8 +102,8 @@ export function Sidebar({ user }: SidebarProps) {
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
                                     isActive
-                                        ? "bg-pink-50 text-pink-600 font-medium"
-                                        : "text-gray-700 hover:bg-gray-50"
+                                        ? "bg-gray-900 text-white font-medium"
+                                        : "text-gray-700 hover:bg-gray-100"
                                 }`}
                             >
                                 <span className="text-xl">{item.icon}</span>
@@ -114,7 +116,7 @@ export function Sidebar({ user }: SidebarProps) {
                 <div className="p-4 border-t border-gray-200">
                     <button
                         onClick={() => signOut({ callbackUrl: "/login" })}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition"
                     >
                         <span className="text-xl">🚪</span>
                         <span>Logout</span>

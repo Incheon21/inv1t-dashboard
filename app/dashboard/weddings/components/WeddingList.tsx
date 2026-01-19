@@ -16,7 +16,7 @@ export function WeddingList({ weddings }: { weddings: WeddingWithDetails[] }) {
     const handleDelete = async (id: string) => {
         if (
             !confirm(
-                "Are you sure? This will delete all guests for this wedding!"
+                "Are you sure? This will delete all guests for this wedding!",
             )
         )
             return;
@@ -50,7 +50,7 @@ export function WeddingList({ weddings }: { weddings: WeddingWithDetails[] }) {
                                 <h3 className="text-lg font-semibold text-gray-900">
                                     {wedding.name}
                                 </h3>
-                                <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                                <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
                                     /{wedding.slug}
                                 </span>
                             </div>
@@ -89,10 +89,10 @@ export function WeddingList({ weddings }: { weddings: WeddingWithDetails[] }) {
                             )}
 
                             <div className="flex items-center gap-4 text-sm">
-                                <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded">
+                                <span className="bg-gray-100 text-gray-900 px-3 py-1 rounded">
                                     👤 Admin: {wedding.admin.name}
                                 </span>
-                                <span className="bg-pink-50 text-pink-700 px-3 py-1 rounded">
+                                <span className="bg-gray-100 text-gray-900 px-3 py-1 rounded">
                                     👥 {wedding._count.guests} guests
                                 </span>
                             </div>
@@ -100,7 +100,7 @@ export function WeddingList({ weddings }: { weddings: WeddingWithDetails[] }) {
 
                         <button
                             onClick={() => handleDelete(wedding.id)}
-                            className="text-red-600 hover:text-red-800 text-sm font-medium px-4 py-2 rounded hover:bg-red-50 transition"
+                            className="text-gray-900 hover:text-gray-700 text-sm font-medium px-4 py-2 rounded hover:bg-gray-100 transition"
                         >
                             Delete
                         </button>
